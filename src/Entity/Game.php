@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\GameRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -51,6 +53,17 @@ class Game implements \JsonSerializable
      * @ORM\Column(type="string", length=255)
      */
     private $img;
+
+    /**
+     * @ORM\OneToMany(targetEntity=CommentUser::class, mappedBy="game")
+     */
+    private $comment;
+
+    public function __construct()
+    {
+        $this->commentpost = new ArrayCollection();
+        $this->comment = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -129,21 +142,7 @@ class Game implements \JsonSerializable
         return $this;
     }
 
-    public function jsonSerialize()
-    {
-        // TODO: Implement jsonSerialize() method.
-        return [
-            "id" => $this->getId(),
-            "img" => $this->getImg(),
-            "name" => $this->getName(),
-            "description" => $this->getDescription(),
-            "date" => $this->getDate()->format("Y"),
-            "platform" => $this->getPlateform(),
-            "price" => $this->getPrice(),
-            "devise" => $this->getDevise(),
 
-        ];
-    }
 
     public function getImg(): ?string
     {
@@ -156,4 +155,57 @@ class Game implements \JsonSerializable
 
         return $this;
     }
+
+
+
+
+    /**
+     * @return Collection|commentuser[]
+     */
+    public function getComment(): Collection
+    {
+        return $this->comment;
+    }
+
+    public function addComment(commentuser $comment): self
+    {
+        if (!$this->comment->contains($comment)) {
+            $this->comment[] = $comment;
+            $comment->setGame($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComment(commentuser $comment): self
+    {
+        if ($this->comment->contains($comment)) {
+            $this->comment->removeElement($comment);
+            // set the owning side to null (unless already changed)
+            if ($comment->getGame() === $this) {
+                $comment->setGame(null);
+            }
+        }
+
+        return $this;
+    }
+
+
+    public function jsonSerialize()
+    {
+        // TODO: Implement jsonSerialize() method.
+        return [
+            "id" => $this->getId(),
+            "img" => $this->getImg(),
+            "name" => $this->getName(),
+            "description" => $this->getDescription(),
+            "date" => $this->getDate()->format("Y"),
+            "platform" => $this->getPlateform(),
+            "price" => $this->getPrice(),
+            "devise" => $this->getDevise(),
+            "Comment" => $this->getComment(),
+
+        ];
+    }
+
 }
