@@ -2,9 +2,14 @@
 
 namespace App\Controller;
 
+use App\Entity\CommentUser;
+use App\Entity\Game;
 use App\Repository\GameRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class TestApiController extends AbstractController
 {
@@ -86,6 +91,30 @@ class TestApiController extends AbstractController
         $jsonD = json_encode($article);
 
         return $this->json($article);
+    }
+
+    /**
+     * @Route("/game/{id}/comment/api", name="game_comment_api", methods={"POST"})
+     */
+
+    public function gameCommentPost(Request $request , GameRepository $gameRepository, EntityManagerInterface $em)
+    {
+        //dd($gameRepository);
+        //dd($request->get('id'));
+        $idpage = $request->get('id');
+        $gamePage = $gameRepository->find($idpage);
+        $jsonRecus =  json_decode($request->getContent());
+        //dd(json_decode($jsonRecus));
+        $comment = new CommentUser();
+        $comment->setUsername($jsonRecus->username);
+        $comment->setComment($jsonRecus->comment);
+        $comment->setGame($gamePage);
+
+
+        $em->persist($comment);
+        $em->flush();
+        dd($comment);
+
     }
 
 
