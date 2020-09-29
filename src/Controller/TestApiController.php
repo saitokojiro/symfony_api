@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class TestApiController extends AbstractController
@@ -113,7 +114,34 @@ class TestApiController extends AbstractController
 
         $em->persist($comment);
         $em->flush();
-        dd($comment);
+        $response = new Response('', 201);
+        $response->headers->set("Content-Type", "application/json");
+        return $response;
+
+    }
+
+
+
+    /**
+     * @Route("/games/add/api", name="game_add_api", methods={"POST"})
+     */
+
+    public function gameAdd(Request $request , GameRepository $gameRepository, EntityManagerInterface $em)
+    {
+        $jsonRecus =  json_decode($request->getContent());
+        //dd($jsonRecus);
+        $addGame= new Game();
+        $addGame->setImg($jsonRecus->img);
+        $addGame->setName($jsonRecus->name);
+        $addGame->setDescription($jsonRecus->description);
+        $addGame->setDate(\DateTime::createFromFormat('d-m-Y', $jsonRecus->date));
+        $addGame->setPlateform($jsonRecus->platform);
+        $addGame->setPrice($jsonRecus->price);
+        $addGame->setDevise($jsonRecus->devise);
+
+
+        $em->persist($addGame);
+        $em->flush();
 
     }
 
